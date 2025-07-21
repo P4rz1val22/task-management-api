@@ -4,16 +4,23 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/P4rz1val22/task-management-api/internal/database"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	// Connect to database
+	database.Connect()
+
+	// Create Gin router
 	router := gin.Default()
 
+	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status":  "healthy",
-			"message": "Task Management API is running!",
+			"status":   "healthy",
+			"message":  "Task Management API is running!",
+			"database": "connected",
 		})
 	})
 
