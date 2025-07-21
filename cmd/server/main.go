@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	r := gin.Default()
+	router := gin.Default()
 
-	r.GET("/health", func(c *gin.Context) {
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
 			"message": "Task Management API is running!",
@@ -19,7 +19,7 @@ func main() {
 
 	// Start server on port 8080
 	log.Println("Starting server on :8080...")
-	if err := r.Run(":8080"); err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }
