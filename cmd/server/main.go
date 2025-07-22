@@ -30,21 +30,11 @@ func main() {
 		auth.POST("/login", handlers.Login)
 	}
 
-	// Add this AFTER your auth routes, BEFORE r.Run():
 	protected := r.Group("/users")
-	protected.Use(middleware.RequireAuth()) // Apply middleware to all /users routes
+	protected.Use(middleware.RequireAuth())
 	{
-		protected.GET("/me", func(c *gin.Context) {
-			// Get user info from middleware
-			userID := c.GetUint("user_id")
-			email := c.GetString("email")
-
-			c.JSON(http.StatusOK, gin.H{
-				"message": "Protected route working!",
-				"user_id": userID,
-				"email":   email,
-			})
-		})
+		protected.GET("/me", handlers.GetCurrentUser)
+		protected.PUT("/me", handlers.UpdateCurrentUser)
 	}
 
 	// Start server on port 8080
