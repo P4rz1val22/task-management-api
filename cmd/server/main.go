@@ -1,19 +1,45 @@
+//	@title			Task Management API
+//	@version		1.0
+//	@description	A production-ready task management API with JWT authentication
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	Luis Sarmiento
+//	@contact.email	luis.sar.cor@gmail.com
+
+//	@license.name	MIT
+//	@license.url	https://opensource.org/licenses/MIT
+
+//	@host		task-management-api-production-0512.up.railway.app
+//	@BasePath	/
+
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Type "Bearer" followed by a space and JWT token.
+
 package main
 
 import (
-	"github.com/P4rz1val22/task-management-api/internal/middleware"
 	"log"
 	"net/http"
 
 	"github.com/P4rz1val22/task-management-api/internal/database"
 	"github.com/P4rz1val22/task-management-api/internal/handlers"
+	"github.com/P4rz1val22/task-management-api/internal/middleware"
 	"github.com/gin-gonic/gin"
+
+	// Swagger imports
+	_ "github.com/P4rz1val22/task-management-api/docs"
+	"github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
 	database.Connect()
 
 	r := gin.Default()
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Health Check
 	r.GET("/health", func(c *gin.Context) {

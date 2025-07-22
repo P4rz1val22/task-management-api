@@ -7,6 +7,20 @@ import (
 	"net/http"
 )
 
+type UpdateUserRequest struct {
+	Name  string `json:"name" binding:"required"`
+	Email string `json:"email" binding:"required,email"`
+}
+
+// @Summary		Get current user profile
+// @Description	Get the profile information of the currently authenticated user
+// @Tags			users
+// @Produce		json
+// @Security		BearerAuth
+// @Success		200	{object}	map[string]interface{}
+// @Failure		401	{object}	map[string]interface{}
+// @Failure		404	{object}	map[string]interface{}
+// @Router			/users/me [get]
 func GetCurrentUser(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var user models.User
@@ -19,11 +33,18 @@ func GetCurrentUser(c *gin.Context) {
 	})
 }
 
-type UpdateUserRequest struct {
-	Name  string `json:"name" binding:"required"`
-	Email string `json:"email" binding:"required,email"`
-}
-
+// @Summary		Update current user profile
+// @Description	Update the profile information of the currently authenticated user
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Security		BearerAuth
+// @Param			user	body		UpdateUserRequest	true	"User update data"
+// @Success		200		{object}	map[string]interface{}
+// @Failure		400		{object}	map[string]interface{}
+// @Failure		401		{object}	map[string]interface{}
+// @Failure		404		{object}	map[string]interface{}
+// @Router			/users/me [put]
 func UpdateCurrentUser(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var req UpdateUserRequest
