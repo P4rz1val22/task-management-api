@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  handlers.CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
   handlers.LoginRequest:
     properties:
       email:
@@ -35,7 +44,7 @@ definitions:
     - email
     - name
     type: object
-host: task-management-api-production-0512.up.railway.app
+host: localhost:8080
 info:
   contact:
     email: luis.sar.cor@gmail.com
@@ -114,6 +123,41 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /projects:
+    post:
+      consumes:
+      - application/json
+      description: Create a new project owned by the authenticated user
+      parameters:
+      - description: Project creation data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new project
+      tags:
+      - projects
   /users/me:
     get:
       description: Get the profile information of the currently authenticated user

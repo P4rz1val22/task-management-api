@@ -9,8 +9,11 @@
 //	@license.name	MIT
 //	@license.url	https://opensource.org/licenses/MIT
 
-//	@host		task-management-api-production-0512.up.railway.app
+//	@host		localhost:8080
 //	@BasePath	/
+
+//	@servers	http://localhost:8080	Local Development
+//	@servers	https://task-management-api-production-0512.up.railway.app	Production
 
 //	@securityDefinitions.apikey	BearerAuth
 //	@in							header
