@@ -124,10 +124,38 @@ paths:
       tags:
       - auth
   /projects:
+    get:
+      description: Get list of projects owned by authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all projects
+      tags:
+      - projects
     post:
       consumes:
       - application/json
-      description: Create a new project owned by the authenticated user
+      - application/json
+      description: |-
+        Create a new project owned by the authenticated user
+        Create a new project owned by the authenticated user
       parameters:
       - description: Project creation data
         in: body
@@ -135,7 +163,14 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/handlers.CreateProjectRequest'
+      - description: Project creation data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateProjectRequest'
       produces:
+      - application/json
       - application/json
       responses:
         "201":
@@ -155,7 +190,71 @@ paths:
             type: object
       security:
       - BearerAuth: []
+      - BearerAuth: []
       summary: Create a new project
+      tags:
+      - projects
+      - projects
+  /projects/{id}:
+    delete:
+      description: Delete a specific project owned by authenticated user
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete project by ID
+      tags:
+      - projects
+    get:
+      description: Get detailed information about a specific project owned by authenticated
+        user
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get project by ID
       tags:
       - projects
   /users/me:
