@@ -56,11 +56,18 @@ func main() {
 		auth.POST("/login", handlers.Login)
 	}
 
-	protected := r.Group("/users")
-	protected.Use(middleware.RequireAuth())
+	users := r.Group("/users")
+
+	users.Use(middleware.RequireAuth())
 	{
-		protected.GET("/me", handlers.GetCurrentUser)
-		protected.PUT("/me", handlers.UpdateCurrentUser)
+		users.GET("/me", handlers.GetCurrentUser)
+		users.PUT("/me", handlers.UpdateCurrentUser)
+	}
+
+	projects := r.Group("/projects")
+	projects.Use(middleware.RequireAuth())
+	{
+		projects.POST("", handlers.CreateProject)
 	}
 
 	// Start server on port 8080
