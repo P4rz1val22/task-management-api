@@ -71,6 +71,10 @@ func main() {
 	projects.Use(middleware.RequireAuth())
 	{
 		projects.POST("", handlers.CreateProject)
+		projects.GET("", handlers.GetProjects)
+		projects.GET("/:id", handlers.GetProjectByID)
+		projects.PUT("/:id", handlers.UpdateProject)
+		projects.DELETE("/:id", handlers.DeleteProject)
 	}
 
 	// Start server on port 8080
