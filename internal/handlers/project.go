@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type CreateProjectRequest struct {
+type ProjectRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 }
@@ -18,7 +18,7 @@ type CreateProjectRequest struct {
 // @Accept			json
 // @Produce		json
 // @Security		BearerAuth
-// @Param			project	body		CreateProjectRequest	true	"Project creation data"
+// @Param			project	body		ProjectRequest	true	"Project creation data"
 // @Success		201		{object}	map[string]interface{}
 // @Failure		400		{object}	map[string]interface{}
 // @Failure		401		{object}	map[string]interface{}
@@ -29,7 +29,7 @@ type CreateProjectRequest struct {
 // @Accept        json
 // @Produce    json
 // @Security       BearerAuth
-// @Param         project    body      CreateProjectRequest   true   "Project creation data"
+// @Param         project    body      ProjectRequest   true   "Project creation data"
 // @Success    201       {object}   map[string]interface{}
 // @Failure    400       {object}   map[string]interface{}
 // @Failure    401       {object}   map[string]interface{}
@@ -37,7 +37,7 @@ type CreateProjectRequest struct {
 func CreateProject(c *gin.Context) {
 	userID := c.GetUint("user_id")
 
-	var req CreateProjectRequest
+	var req ProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -148,7 +148,7 @@ func UpdateProject(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	projectID := c.Param("id")
 
-	var req CreateProjectRequest
+	var req ProjectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

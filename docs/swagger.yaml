@@ -1,14 +1,5 @@
 basePath: /
 definitions:
-  handlers.CreateProjectRequest:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-    required:
-    - name
-    type: object
   handlers.LoginRequest:
     properties:
       email:
@@ -19,6 +10,15 @@ definitions:
     required:
     - email
     - password
+    type: object
+  handlers.ProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - name
     type: object
   handlers.RegisterRequest:
     properties:
@@ -33,6 +33,26 @@ definitions:
     - email
     - name
     - password
+    type: object
+  handlers.TaskRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      estimate:
+        type: string
+      priority:
+        type: string
+      project_id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    required:
+    - project_id
+    - title
     type: object
   handlers.UpdateUserRequest:
     properties:
@@ -162,13 +182,13 @@ paths:
         name: project
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateProjectRequest'
+          $ref: '#/definitions/handlers.ProjectRequest'
       - description: Project creation data
         in: body
         name: project
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateProjectRequest'
+          $ref: '#/definitions/handlers.ProjectRequest'
       produces:
       - application/json
       - application/json
@@ -257,6 +277,203 @@ paths:
       summary: Get project by ID
       tags:
       - projects
+  /tasks:
+    get:
+      description: Get list of tasks assigned to authenticated user with optional
+        filtering
+      parameters:
+      - description: Filter by project ID
+        in: query
+        name: project_id
+        type: integer
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by priority
+        in: query
+        name: priority
+        type: string
+      - description: Filter by estimate
+        in: query
+        name: estimate
+        type: string
+      - description: Filter tasks due after date (YYYY-MM-DD)
+        in: query
+        name: due_date_from
+        type: string
+      - description: Filter tasks due before date (YYYY-MM-DD)
+        in: query
+        name: due_date_to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task in a project owned by the authenticated user
+      parameters:
+      - description: Task creation data
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Delete a specific task in a project owned by authenticated user
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete task by ID
+      tags:
+      - tasks
+    get:
+      description: Get detailed information about a specific task assigned to authenticated
+        user
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get task by ID
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Update a specific task in a project owned by authenticated user
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Task update data
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update task by ID
+      tags:
+      - tasks
   /users/me:
     get:
       description: Get the profile information of the currently authenticated user

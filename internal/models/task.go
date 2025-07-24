@@ -13,8 +13,11 @@ type Task struct {
 	Project     Project        `json:"project" gorm:"foreignKey:ProjectID"`
 	AssigneeID  *uint          `json:"assignee_id"`
 	Assignee    *User          `json:"assignee,omitempty" gorm:"foreignKey:AssigneeID"`
-	Status      string         `json:"status" gorm:"default:todo"`
-	Priority    string         `json:"priority" gorm:"default:medium"`
+	CreatorID   *uint          `json:"creator_id" gorm:"not null"`
+	Creator     *User          `json:"creator,omitempty" gorm:"foreignKey:CreatorID"`
+	Status      string         `json:"status" gorm:"not null;default:'Not Started'"`
+	Priority    string         `json:"priority"`
+	Estimate    string         `json:"estimate"`
 	DueDate     *time.Time     `json:"due_date"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
