@@ -3,10 +3,13 @@ package handlers
 import (
 	"github.com/P4rz1val22/task-management-api/internal/database"
 	"github.com/P4rz1val22/task-management-api/internal/models"
+	"github.com/P4rz1val22/task-management-api/internal/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 )
+
+var emailService = services.NewEmailService()
 
 type TaskRequest struct {
 	Title       string `json:"title" binding:"required"`
@@ -114,6 +117,14 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
 		return
 	}
+
+	go func() {
+		// Get user email for notification
+		var user models.User
+		if err := database.DB.First(&user, userID).Error; err == nil {
+			emailService.SendTaskCreatedNotification(task, user.Email)
+		}
+	}()
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Task created successfully",
@@ -344,6 +355,11 @@ func UpdateTask(c *gin.Context) {
 		dueDate = &parsed
 	}
 
+	originalTitle := task.Title
+	originalStatus := task.Status
+	originalPriority := task.Priority
+	originalEstimate := task.Estimate
+
 	task.Title = req.Title
 	task.Description = req.Description
 	task.ProjectID = req.ProjectID
@@ -356,6 +372,45 @@ func UpdateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
 		return
 	}
+
+	// In your UpdateTask function, replace the goroutine section:
+	go func() {
+		var user models.User
+		if err := database.DB.First(&user, userID).Error; err == nil {
+			var changes []services.ChangeDetail
+			if originalTitle != task.Title {
+				changes = append(changes, services.ChangeDetail{
+					Field: "Title",
+					From:  originalTitle,
+					To:    task.Title,
+				})
+			}
+			if originalStatus != task.Status {
+				changes = append(changes, services.ChangeDetail{
+					Field: "Status",
+					From:  originalStatus,
+					To:    task.Status,
+				})
+			}
+			if originalPriority != task.Priority {
+				changes = append(changes, services.ChangeDetail{
+					Field: "Priority",
+					From:  originalPriority,
+					To:    task.Priority,
+				})
+			}
+
+			if originalEstimate != task.Estimate {
+				changes = append(changes, services.ChangeDetail{
+					Field: "Estimate",
+					From:  originalEstimate,
+					To:    task.Estimate,
+				})
+			}
+
+			emailService.SendTaskUpdatedNotification(task, user.Email, changes)
+		}
+	}()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Task updated successfully",
