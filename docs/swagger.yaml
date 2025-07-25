@@ -217,7 +217,8 @@ paths:
       - projects
   /projects/{id}:
     delete:
-      description: Delete a specific project owned by authenticated user
+      description: Delete a specific project owned by authenticated user (only if
+        no tasks exist)
       parameters:
       - description: Project ID
         in: path
@@ -227,6 +228,11 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
           schema:
             additionalProperties: true
             type: object
@@ -275,6 +281,55 @@ paths:
       security:
       - BearerAuth: []
       summary: Get project by ID
+      tags:
+      - projects
+    put:
+      consumes:
+      - application/json
+      description: Update a specific project owned by authenticated user
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Project update data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update project by ID
       tags:
       - projects
   /tasks:

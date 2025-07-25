@@ -144,6 +144,20 @@ func GetProjectByID(c *gin.Context) {
 	})
 }
 
+// @Summary    Update project by ID
+// @Description Update a specific project owned by authenticated user
+// @Tags       projects
+// @Accept     json
+// @Produce    json
+// @Security   BearerAuth
+// @Param      id       path    int             true   "Project ID"
+// @Param      project  body    ProjectRequest  true   "Project update data"
+// @Success    200      {object} map[string]interface{}
+// @Failure    400      {object} map[string]interface{}
+// @Failure    401      {object} map[string]interface{}
+// @Failure    404      {object} map[string]interface{}
+// @Failure    409      {object} map[string]interface{}
+// @Router     /projects/{id} [put]
 func UpdateProject(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	projectID := c.Param("id")
@@ -154,21 +168,18 @@ func UpdateProject(c *gin.Context) {
 		return
 	}
 
-	// First: Find the project and verify ownership
 	var project models.Project
 	if err := database.DB.Where("id = ? AND owner_id = ?", projectID, userID).First(&project).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
 		return
 	}
 
-	// Second: Check for duplicate name (excluding current project)
 	var existingProject models.Project
 	if err := database.DB.Where("name = ? AND owner_id = ? AND id != ?", req.Name, userID, projectID).First(&existingProject).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Project name already exists"})
 		return
 	}
 
-	// Third: Update the project
 	project.Name = req.Name
 	project.Description = req.Description
 
@@ -189,11 +200,12 @@ func UpdateProject(c *gin.Context) {
 }
 
 // @Summary    Delete project by ID
-// @Description Delete a specific project owned by authenticated user
+// @Description Delete a specific project owned by authenticated user (only if no tasks exist)
 // @Tags       projects
 // @Security   BearerAuth
 // @Param      id    path    int    true    "Project ID"
 // @Success    200   {object}    map[string]interface{}
+// @Failure    400   {object}    map[string]interface{}
 // @Failure    401   {object}    map[string]interface{}
 // @Failure    404   {object}    map[string]interface{}
 // @Router     /projects/{id} [delete]
@@ -208,7 +220,18 @@ func DeleteProject(c *gin.Context) {
 		return
 	}
 
-	// Delete the project (this will also cascade delete tasks due to foreign key)
+	// Check for existing tasks
+	var taskCount int64
+	database.DB.Model(&models.Task{}).Where("project_id = ?", projectID).Count(&taskCount)
+	if taskCount > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":      "Cannot delete project with existing tasks. Please delete or move all tasks first.",
+			"task_count": taskCount,
+		})
+		return
+	}
+
+	// Safe to delete - no tasks exist
 	if err := database.DB.Delete(&project).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete project"})
 		return
